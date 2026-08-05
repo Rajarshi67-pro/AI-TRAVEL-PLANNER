@@ -23,7 +23,7 @@ export const getJournals = async (req: AuthRequest, res: Response) => {
 export const getJournal = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.userId;
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const journal = await prisma.journal.findUnique({
       where: { id },

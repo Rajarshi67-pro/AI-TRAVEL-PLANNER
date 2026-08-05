@@ -7,7 +7,7 @@ interface AuthRequest extends Request {
 
 export const getExpenses = async (req: AuthRequest, res: Response) => {
   try {
-    const { tripId } = req.params;
+    const tripId = req.params.tripId as string;
     const userId = req.user!.userId;
 
     const trip = await prisma.trip.findUnique({ where: { id: tripId } });
@@ -29,7 +29,7 @@ export const getExpenses = async (req: AuthRequest, res: Response) => {
 
 export const addExpense = async (req: AuthRequest, res: Response) => {
   try {
-    const { tripId } = req.params;
+    const tripId = req.params.tripId as string;
     const userId = req.user!.userId;
     const { amount, category, description, date } = req.body as {
       amount: number;
