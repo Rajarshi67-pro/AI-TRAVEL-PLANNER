@@ -20,13 +20,6 @@ services:
       - key: JWT_SECRET
         generateValue: true
 
-  # PostgreSQL Database Service
-  - type: pserv
-    name: ai-travel-db
-    databaseName: travel_db
-    user: travel_user
-    plan: free
-
   # Frontend Next.js Service
   - type: web
     name: ai-travel-planner-frontend
@@ -42,3 +35,9 @@ services:
           type: web
           name: ai-travel-planner-backend
           envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: ai-travel-db
+    databaseName: travel_db
+    user: travel_user
+    plan: free
