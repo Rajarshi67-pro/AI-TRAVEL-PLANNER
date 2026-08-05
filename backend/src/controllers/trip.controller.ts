@@ -1,0 +1,61 @@
+import { Request, Response } from 'express';
+import prisma from '../config/prisma';
+import { generateTripItinerary } from '../services/ai.service';
+
+interface AuthRequest extends Request {
+  user?: { userId: string };
+}
+
+export const createTrip = async (req: AuthRequest, res: Response) => {
+  try {
+    const { title, destination, startDate, endDate, budget } = req.body as {
+      title: string;
+      destination: string;
+      startDate: string;
+      endDate: string;
+      budget: string;
+    };
+    const userId = req.user!.userId;
+
+    if (!title || !destination || !startDate || !endDate || !budget) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+
+    // Generate AI Itinerary
+    const itinerary = await generateTripItinerary(destination, days, budget.toString());
+
+    const trip = await prisma.trip.create({
+      data: {
+        title,
+        destination,
+        startDate: start,
+        endDate: end,
+        budget: parseFloat(budget),
+        userId,
+      },
+    });
+
+    return res.status(201).json({ message: 'Trip created successfully', trip, itinerary });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getTrips = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const trips = await prisma.trip.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+    return res.status(200).json({ trips });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
