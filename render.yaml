@@ -1,0 +1,39 @@
+services:
+  # Backend API Service
+  - type: web
+    name: ai-travel-planner-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma db push && npm start
+    disk:
+      name: sqlite-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        value: "file:/var/data/prod.db"
+      - key: GEMINI_API_KEY
+        sync: false # You will need to enter this manually in the Render dashboard
+      - key: UNSPLASH_ACCESS_KEY
+        sync: false # You will need to enter this manually in the Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+
+  # Frontend Next.js Service
+  - type: web
+    name: ai-travel-planner-frontend
+    env: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: ai-travel-planner-backend
+          envVarKey: RENDER_EXTERNAL_URL
