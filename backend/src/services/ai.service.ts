@@ -5,7 +5,7 @@ dotenv.config();
 
 const apiKey = process.env.GEMINI_API_KEY || '';
 
-export const generateTripItinerary = async (destination: string, days: number, budget: string): Promise<string> => {
+export const generateTripItinerary = async (destination: string, days: number, budget: string, preferences: string = ''): Promise<string> => {
   if (!apiKey) {
     return `# ${destination} - ${days} Day Itinerary\n\n*AI generation unavailable — add your GEMINI_API_KEY to backend/.env*\n\nThis is a placeholder itinerary. Please configure your API key for full AI-powered generation.`;
   }
@@ -13,9 +13,14 @@ export const generateTripItinerary = async (destination: string, days: number, b
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    let preferencesContext = '';
+    if (preferences) {
+        preferencesContext = `\nKeep in mind these user preferences and interests: ${preferences}\n`;
+    }
 
     const prompt = `You are an expert AI Travel Planner. Generate a beautiful, detailed day-by-day itinerary for a ${days}-day trip to ${destination} with a budget of $${budget} USD.
-
+${preferencesContext}
 For each day include:
 - Morning, afternoon, and evening activities with specific place names
 - Breakfast, lunch, and dinner restaurant recommendations with price ranges
