@@ -10,13 +10,22 @@ services:
       - key: NODE_VERSION
         value: 20
       - key: DATABASE_URL
-        value: "file:./prisma/dev.db"
+        fromDatabase:
+          name: ai-travel-db
+          property: connectionString
       - key: GEMINI_API_KEY
         sync: false # You will need to enter this manually in the Render dashboard
       - key: UNSPLASH_ACCESS_KEY
         sync: false # You will need to enter this manually in the Render dashboard
       - key: JWT_SECRET
         generateValue: true
+
+  # PostgreSQL Database Service
+  - type: pserv
+    name: ai-travel-db
+    databaseName: travel_db
+    user: travel_user
+    plan: free
 
   # Frontend Next.js Service
   - type: web
